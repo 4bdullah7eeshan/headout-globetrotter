@@ -17,7 +17,7 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
   username String @unique // Usernames are unique
-  profile Profile
+  profile Profile?
 }
 
 model Profile {
@@ -27,10 +27,10 @@ model Profile {
   score Float // "score = correct / wrong". Convert to % when displaying in frontend 
 }
 
-model Game {
-  // Implement later
+// model Game {
+//   // Implement later
 
-}
+// }
 
 model Round {
   clue Clue @relation(fields: [clueId], references: [id])
@@ -39,23 +39,32 @@ model Round {
 }
 
 model Country {
+  id Int @id @default(autoincrement())
+  name String @unique
+
 
 }
 
 model City {
-
+  id Int @id @default(autoincrement())
+  name String @unique
 }
 
 model Clue {
   id Int @id @default(autoincrement())
-  round Round
+  text String
+  round Round?
 
 }
 
 model FunFact {
-
+  id Int @id @default(autoincrement())
+  text String
 }
 
 model Trivia {
+  id Int @id @default(autoincrement())
+  text String
+
 
 }
