@@ -27,6 +27,16 @@ model Profile {
   score Float // "score = correct / wrong". Convert to % when displaying in frontend 
 }
 
+model Game {
+  // Implement later
+
+}
+
+model Round {
+  // Implement later
+
+}
+
 model Country {
 
 }
