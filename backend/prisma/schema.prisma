@@ -13,8 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model User {
 
+}
+
+model Profile {
+  
 }
 
 model Country {
@@ -34,5 +39,5 @@ model FunFact {
 }
 
 model Trivia {
-  
+
 }
