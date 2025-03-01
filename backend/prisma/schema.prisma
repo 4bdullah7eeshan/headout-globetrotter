@@ -5,10 +5,10 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 model Session {
-  id          String   @id
-  sid         String   @unique
-  data        String
-  expiresAt   DateTime
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
 }
 
 generator client {
@@ -20,13 +20,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Need to think more about User and Profile models and improve them.
-// A User is initially just a "Visitor" - not registered in db but can play and the score is tracked...how? frontend? localStorage?
-// When clicks share - s/he is registered, score is stored in db associated with the user
-// Transfer score before registration -> post registration
-// Refresh??
 model User {
-  // This is a visitor. Username not required just score. We are storing in db...without registring the user by username
   id Int @id @default(autoincrement())
 
   numberOfCorrectAnswers Int @default(0)
@@ -43,8 +37,6 @@ model Profile {
 
   user   User @relation(fields: [userId], references: [id])
   userId Int  @unique
-
-  // Sharing Link?? - expiry duration? 
 }
 
 // model Game {
@@ -66,7 +58,6 @@ model Round {
   correctAnswerId Int
   correctAnswer   City @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
 
-  // Optional
   userAnswerId Int?
   userAnswer   City? @relation("UserAnswer", fields: [userAnswerId], references: [id])
 

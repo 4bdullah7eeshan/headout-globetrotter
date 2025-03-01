@@ -2,7 +2,6 @@
 const { OpenAI } = require("openai");
 const { PrismaClient } = require("@prisma/client");
 
-
 const prisma = new PrismaClient();
 
 const openai = new OpenAI({
@@ -26,7 +25,7 @@ Output only valid JSON with no additional text.
 async function generateDestinations() {
   console.log("Requesting destination data from OpenAI...");
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini", // adjust model as needed (or use "gpt-4" / "gpt-3.5-turbo")
+    model: "gpt-4o-mini",
     store: true,
     messages: [{ role: "user", content: prompt }],
   });
@@ -34,14 +33,14 @@ async function generateDestinations() {
   let resultText = completion.choices[0].message.content;
 
   // Extract the JSON array from the response if extra text is present.
-  const startIndex = resultText.indexOf('[');
-  const endIndex = resultText.lastIndexOf(']');
+  const startIndex = resultText.indexOf("[");
+  const endIndex = resultText.lastIndexOf("]");
   if (startIndex !== -1 && endIndex !== -1) {
     resultText = resultText.substring(startIndex, endIndex + 1);
   } else {
     throw new Error("Could not find JSON array in the response");
   }
-  resultText = resultText.replace(/,\s*([\]}])/g, '$1');
+  resultText = resultText.replace(/,\s*([\]}])/g, "$1");
 
   try {
     const destinations = JSON.parse(resultText);
@@ -64,8 +63,7 @@ async function seedDatabase() {
     // Ensure we extract the proper string values.
     const countryName =
       typeof dest.country === "object" ? dest.country.name : dest.country;
-    const cityName =
-      typeof dest.city === "object" ? dest.city.name : dest.city;
+    const cityName = typeof dest.city === "object" ? dest.city.name : dest.city;
 
     // Upsert the Country record.
     const country = await prisma.country.upsert({
@@ -117,11 +115,7 @@ async function seedDatabase() {
       })
     );
 
-    await Promise.all([
-      ...cluePromises,
-      ...funFactPromises,
-      ...triviaPromises,
-    ]);
+    await Promise.all([...cluePromises, ...funFactPromises, ...triviaPromises]);
 
     console.log(`Seeded destination: ${cityName}, ${countryName}`);
   }

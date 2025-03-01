@@ -1,347 +1,364 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Globetrotter Challenge – The Ultimate Travel Guessing Game!</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="./css/styles.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <style>
-    /* Ensure long links break inside modal */
-    .break-word {
-      word-wrap: break-word;
-      word-break: break-all;
-    }
-    /* For answer button outlines */
-    .btn-correct {
-      border-color: #198754 !important; /* Bootstrap success color */
-      color: #198754 !important;
-    }
-    .btn-wrong {
-      border-color: #dc3545 !important; /* Bootstrap danger color */
-      color: #dc3545 !important;
-    }
-    /* Score card placed on right */
-    #scoreCard {
-      max-width: 300px;
-    }
-    /* Utility: hide element */
-    .d-none { display: none !important; }
-  </style>
-</head>
-<body class="d-flex flex-column min-vh-100">
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg border border-dark p-2">
-    <div class="container-fluid">
-      <a class="navbar-brand logo" href="./index.html">
-        <i class="bi bi-backpack"></i> Globetrotter
-      </a>
-      <!-- Challenge / Share Section placed on the right -->
-      <div id="challengeSection" class="d-flex flex-row align-items-center gap-3 ms-auto">
-        <!-- Registration Form: Visible only if guest is NOT registered -->
-        <div id="registrationDiv" class="d-flex flex-row align-items-center">
-          <form id="registerForm" class="d-flex flex-row align-items-center gap-3">
-            <div class="form-group input-group">
-              <span class="input-group-text" id="basic-addon1">@</span>
-              <input type="text" class="form-control" id="usernameInput" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" required />
-            </div>
-            <button type="submit" class="btn btn-success">Register</button>
-          </form>
-        </div>
-        <!-- Share Section: Visible if user is registered -->
-        <div id="shareDiv" class="d-flex flex-row align-items-center d-none">
-          <button id="shareInviteBtn" class="btn btn-info">Invite</button>
-        </div>
-        <!-- Reset Guest Button: always available -->
-        <button id="resetGuestBtn" class="btn btn-danger">Reset</button>
-      </div>
-    </div>
-  </nav>
-
-  <main class="container my-4">
-    <div class="row">
-      <!-- Main content column -->
-      <div class="col-md-8">
-        <h1 class="mb-4">The Globetrotter Challenge</h1>
-        <p class="lead">The Ultimate Travel Guessing Game!</p>
-
-        <!-- New Round Button -->
-        <button id="newRoundBtn" class="btn btn-primary mb-3">Start Round</button>
-
-        <!-- Round Content -->
-        <div id="roundContainer" class="mb-3"></div>
-
-        <!-- Feedback -->
-        <div id="feedback" class="mb-3"></div>
-      </div>
-      <!-- Score card column on right -->
-      <div class="col-md-4">
-        <div id="scoreCard" class="card text-white bg-secondary mb-3">
-          <div class="card-header">Score Card</div>
-          <div class="card-body" id="scoreDisplay">
-            <!-- Score will be injected here -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <footer class="border-dark mt-auto border border-dark p-2">
-    <p class="text-center">Made with <i class="bi bi-balloon-heart"></i></p>
-  </footer>
-
-  <!-- Invite Modal -->
-  <div class="modal fade" id="inviteModal" tabindex="-1" role="dialog" aria-labelledby="inviteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="inviteModalLabel">Share Your Invite</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <p id="modalInviterInfo"></p>
-          <img id="modalShareImage" src="" alt="Invitation Image" class="img-fluid mb-3" style="max-width: 300px;">
-          <p class="break-word">Invite Link: <a id="modalInviteLink" href="#" target="_blank"></a></p>
-          <a id="modalWhatsAppLink" class="btn btn-success" target="_blank">Share on WhatsApp</a>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- JavaScript -->
-  <script>
-    const API_BASE = "http://localhost:3000/api";
-    let guestUserId = localStorage.getItem("guestUserId");
-    let profileUsername = localStorage.getItem("profileUsername");
-
-    // Create a guest user via backend if one doesn't exist.
-    async function createGuestUser() {
-      try {
-        const res = await fetch(`${API_BASE}/users/create-guest`, { method: "POST" });
-        if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem("guestUserId", data.userId);
-          guestUserId = data.userId;
-          console.log("Created new guest user:", guestUserId);
-          return guestUserId;
-        } else {
-          throw new Error("Failed to create guest user");
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Globetrotter Challenge – The Ultimate Travel Guessing Game!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* Ensure long links break inside modal */
+        .break-word {
+            word-wrap: break-word;
+            word-break: break-all;
         }
-      } catch (error) {
-        console.error("Error creating guest user:", error);
-      }
-    }
 
-    // Ensure a guest user exists on page load.
-    async function ensureGuestUser() {
-      if (!guestUserId) {
-        await createGuestUser();
-      }
-      updateScoreDisplay();
-      updateChallengeDisplay();
-    }
+        /* For answer button outlines */
+        .btn-correct {
+            border-color: #198754 !important;
+            /* Bootstrap success color */
+            color: #198754 !important;
+        }
 
-    // Fetch and update score display inside the card.
-    async function updateScoreDisplay() {
-      try {
-        const res = await fetch(`${API_BASE}/users/${guestUserId}/score`);
-        if (res.ok) {
-          const scoreData = await res.json();
-          document.getElementById("scoreDisplay").innerHTML = `
+        .btn-wrong {
+            border-color: #dc3545 !important;
+            /* Bootstrap danger color */
+            color: #dc3545 !important;
+        }
+
+        /* Score card placed on right */
+        #scoreCard {
+            max-width: 300px;
+        }
+
+        /* Utility: hide element */
+        .d-none {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg border border-dark p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand logo" href="./index.html">
+                <i class="bi bi-backpack"></i> Globetrotter
+            </a>
+            <!-- Challenge / Share Section placed on the right -->
+            <div id="challengeSection" class="d-flex flex-row align-items-center gap-3 ms-auto">
+                <!-- Registration Form: Visible only if guest is NOT registered -->
+                <div id="registrationDiv" class="d-flex flex-row align-items-center">
+                    <form id="registerForm" class="d-flex flex-row align-items-center gap-3">
+                        <div class="form-group input-group">
+                            <span class="input-group-text" id="basic-addon1">@</span>
+                            <input type="text" class="form-control" id="usernameInput" placeholder="Username"
+                                aria-label="Username" aria-describedby="basic-addon1" required />
+                        </div>
+                        <button type="submit" class="btn btn-success">Register</button>
+                    </form>
+                </div>
+                <!-- Share Section: Visible if user is registered -->
+                <div id="shareDiv" class="d-flex flex-row align-items-center d-none">
+                    <button id="shareInviteBtn" class="btn btn-info">Invite</button>
+                </div>
+                <!-- Reset Guest Button: always available -->
+                <button id="resetGuestBtn" class="btn btn-danger">Reset</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <div class="row">
+            <!-- Main content column -->
+            <div class="col-md-8">
+                <h1 class="mb-4">The Globetrotter Challenge</h1>
+                <p class="lead">The Ultimate Travel Guessing Game!</p>
+
+                <!-- New Round Button -->
+                <button id="newRoundBtn" class="btn btn-primary mb-3">Start Round</button>
+
+                <!-- Round Content -->
+                <div id="roundContainer" class="mb-3"></div>
+
+                <!-- Feedback -->
+                <div id="feedback" class="mb-3"></div>
+            </div>
+            <!-- Score card column on right -->
+            <div class="col-md-4">
+                <div id="scoreCard" class="card text-white bg-secondary mb-3">
+                    <div class="card-header">Score Card</div>
+                    <div class="card-body" id="scoreDisplay">
+                        <!-- Score will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-dark mt-auto border border-dark p-2">
+        <p class="text-center">Made with <i class="bi bi-balloon-heart"></i></p>
+    </footer>
+
+    <!-- Invite Modal -->
+    <div class="modal fade" id="inviteModal" tabindex="-1" role="dialog" aria-labelledby="inviteModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inviteModalLabel">Share Your Invite</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p id="modalInviterInfo"></p>
+                    <img id="modalShareImage" src="" alt="Invitation Image" class="img-fluid mb-3"
+                        style="max-width: 300px;">
+                    <p class="break-word">Invite Link: <a id="modalInviteLink" href="#" target="_blank"></a></p>
+                    <a id="modalWhatsAppLink" class="btn btn-success" target="_blank">Share on WhatsApp</a>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const API_BASE = "http://localhost:3000/api";
+        let guestUserId = localStorage.getItem("guestUserId");
+        let profileUsername = localStorage.getItem("profileUsername");
+
+        // Create a guest user via backend if one doesn't exist.
+        async function createGuestUser() {
+            try {
+                const res = await fetch(`${API_BASE}/users/create-guest`, { method: "POST" });
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem("guestUserId", data.userId);
+                    guestUserId = data.userId;
+                    console.log("Created new guest user:", guestUserId);
+                    return guestUserId;
+                } else {
+                    throw new Error("Failed to create guest user");
+                }
+            } catch (error) {
+                console.error("Error creating guest user:", error);
+            }
+        }
+
+        // Ensure a guest user exists on page load.
+        async function ensureGuestUser() {
+            if (!guestUserId) {
+                await createGuestUser();
+            }
+            updateScoreDisplay();
+            updateChallengeDisplay();
+        }
+
+        // Fetch and update score display inside the card.
+        async function updateScoreDisplay() {
+            try {
+                const res = await fetch(`${API_BASE}/users/${guestUserId}/score`);
+                if (res.ok) {
+                    const scoreData = await res.json();
+                    document.getElementById("scoreDisplay").innerHTML = `
             <p>${scoreData.numberOfCorrectAnswers} correct, ${scoreData.numberOfWrongAnswers} wrong (${scoreData.percentage}%)</p>
           `;
+                }
+            } catch (error) {
+                console.error("Error fetching score:", error);
+            }
         }
-      } catch (error) {
-        console.error("Error fetching score:", error);
-      }
-    }
 
-    // Update the challenge section based on registration status.
-    function updateChallengeDisplay() {
-      if (profileUsername) {
-        // User is registered: hide registration form and show shareDiv.
-        document.getElementById("registrationDiv").classList.add("d-none");
-        document.getElementById("shareDiv").classList.remove("d-none");
-      } else {
-        // User not registered: show registration form.
-        document.getElementById("registrationDiv").classList.remove("d-none");
-        document.getElementById("shareDiv").classList.add("d-none");
-      }
-    }
-
-    // Start a new round.
-    async function startNewRound() {
-
-        document.getElementById("feedback").innerHTML = "";
-
-      try {
-        const res = await fetch(`${API_BASE}/rounds/new?userId=${guestUserId}`);
-        if (res.ok) {
-          const roundData = await res.json();
-          displayRound(roundData);
-        } else {
-          console.error("Error fetching new round");
+        // Update the challenge section based on registration status.
+        function updateChallengeDisplay() {
+            if (profileUsername) {
+                // User is registered: hide registration form and show shareDiv.
+                document.getElementById("registrationDiv").classList.add("d-none");
+                document.getElementById("shareDiv").classList.remove("d-none");
+            } else {
+                // User not registered: show registration form.
+                document.getElementById("registrationDiv").classList.remove("d-none");
+                document.getElementById("shareDiv").classList.add("d-none");
+            }
         }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    }
 
-    // Display round clues and options.
-function displayRound(roundData) {
-  const container = document.getElementById("roundContainer");
-  container.innerHTML = "";
-  const roundId = roundData.roundId;
-  const clues = roundData.clue;
-  const options = roundData.options;
+        // Start a new round.
+        async function startNewRound() {
 
-  // Display clues.
-  const cluesDiv = document.createElement("div");
-  cluesDiv.innerHTML = "<h5>Clue:</h5>";
-  clues.forEach(clue => {
-    const p = document.createElement("p");
-    p.textContent = clue.description;
-    cluesDiv.appendChild(p);
-  });
-  container.appendChild(cluesDiv);
+            document.getElementById("feedback").innerHTML = "";
 
-  // Display options as buttons.
-  const optionsDiv = document.createElement("div");
-  optionsDiv.innerHTML = "<h5>Choose your destination:</h5>";
-  options.forEach(option => {
-    const btn = document.createElement("button");
-    btn.textContent = option.name;
-    btn.className = "btn btn-outline-primary m-1";
-    // Set a data attribute to hold the option id.
-    btn.setAttribute("data-option-id", option.id);
-    btn.onclick = () => submitAnswer(roundId, option.id, btn);
-    optionsDiv.appendChild(btn);
-  });
-  container.appendChild(optionsDiv);
-}
+            try {
+                const res = await fetch(`${API_BASE}/rounds/new?userId=${guestUserId}`);
+                if (res.ok) {
+                    const roundData = await res.json();
+                    displayRound(roundData);
+                } else {
+                    console.error("Error fetching new round");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
 
+        // Display round clues and options.
+        function displayRound(roundData) {
+            const container = document.getElementById("roundContainer");
+            container.innerHTML = "";
+            const roundId = roundData.roundId;
+            const clues = roundData.clue;
+            const options = roundData.options;
 
+            // Display clues.
+            const cluesDiv = document.createElement("div");
+            cluesDiv.innerHTML = "<h5>Clue:</h5>";
+            clues.forEach(clue => {
+                const p = document.createElement("p");
+                p.textContent = clue.description;
+                cluesDiv.appendChild(p);
+            });
+            container.appendChild(cluesDiv);
 
-
-async function submitAnswer(roundId, userAnswerId, clickedBtn) {
-  try {
-    const res = await fetch(`${API_BASE}/rounds/${roundId}/answer`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userAnswerId })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      document.getElementById("feedback").innerHTML = `<h4>${data.feedback}</h4>`;
-      updateScoreDisplay();
-
-      // Get all option buttons in the current round.
-      const optionButtons = document.querySelectorAll("#roundContainer button");
-      optionButtons.forEach(btn => {
-        btn.disabled = true;
-      });
-
-      document.getElementById("newRoundBtn").textContent = "Play Again";
+            // Display options as buttons.
+            const optionsDiv = document.createElement("div");
+            optionsDiv.innerHTML = "<h5>Choose your destination:</h5>";
+            options.forEach(option => {
+                const btn = document.createElement("button");
+                btn.textContent = option.name;
+                btn.className = "btn btn-outline-primary m-1";
+                // Set a data attribute to hold the option id.
+                btn.setAttribute("data-option-id", option.id);
+                btn.onclick = () => submitAnswer(roundId, option.id, btn);
+                optionsDiv.appendChild(btn);
+            });
+            container.appendChild(optionsDiv);
+        }
 
 
-      if (data.correct) {
-        // If the answer is correct, mark the clicked button green.
-        clickedBtn.classList.remove("btn-outline-primary");
-        clickedBtn.classList.add("btn-correct");
-      } else {
-        // If the answer is wrong, mark the clicked button red.
-        clickedBtn.classList.remove("btn-outline-primary");
-        clickedBtn.classList.add("btn-wrong");
-        // Then mark the correct answer button green.
-        optionButtons.forEach(btn => {
-          if (Number(btn.getAttribute("data-option-id")) === data.correctAnswerId) {
-            btn.classList.remove("btn-outline-primary");
-            btn.classList.add("btn-correct");
-          }
+
+
+        async function submitAnswer(roundId, userAnswerId, clickedBtn) {
+            try {
+                const res = await fetch(`${API_BASE}/rounds/${roundId}/answer`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userAnswerId })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById("feedback").innerHTML = `<h4>${data.feedback}</h4>`;
+                    updateScoreDisplay();
+
+                    // Get all option buttons in the current round.
+                    const optionButtons = document.querySelectorAll("#roundContainer button");
+                    optionButtons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+
+                    document.getElementById("newRoundBtn").textContent = "Play Again";
+
+
+                    if (data.correct) {
+                        // If the answer is correct, mark the clicked button green.
+                        clickedBtn.classList.remove("btn-outline-primary");
+                        clickedBtn.classList.add("btn-correct");
+                    } else {
+                        // If the answer is wrong, mark the clicked button red.
+                        clickedBtn.classList.remove("btn-outline-primary");
+                        clickedBtn.classList.add("btn-wrong");
+                        // Then mark the correct answer button green.
+                        optionButtons.forEach(btn => {
+                            if (Number(btn.getAttribute("data-option-id")) === data.correctAnswerId) {
+                                btn.classList.remove("btn-outline-primary");
+                                btn.classList.add("btn-correct");
+                            }
+                        });
+                    }
+                } else {
+                    console.error("Error submitting answer");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+
+        // Registration: Handle the challenge form submission.
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username = document.getElementById("usernameInput").value.trim();
+            if (!username) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/profiles/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, guestUserId })
+                });
+                if (res.ok) {
+                    const profile = await res.json();
+                    // Save the registered username in localStorage.
+                    localStorage.setItem("profileUsername", profile.username);
+                    profileUsername = profile.username;
+                    updateChallengeDisplay();
+                } else {
+                    console.error("Registration failed");
+                }
+            } catch (error) {
+                console.error("Error during registration:", error);
+            }
         });
-      }
-    } else {
-      console.error("Error submitting answer");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
 
-
-    // Registration: Handle the challenge form submission.
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const username = document.getElementById("usernameInput").value.trim();
-      if (!username) return;
-      
-      try {
-        const res = await fetch(`${API_BASE}/profiles/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, guestUserId })
+        // Handle share button click: generate invite and show modal.
+        document.getElementById("shareInviteBtn").addEventListener("click", async () => {
+            try {
+                const inviteRes = await fetch(`${API_BASE}/profiles/${profileUsername}/invite`, { method: "POST" });
+                if (inviteRes.ok) {
+                    const inviteData = await inviteRes.json();
+                    // Update modal content.
+                    document.getElementById("modalInviterInfo").innerHTML = `<strong>${inviteData.inviter.username}</strong> invites you to join the Travelling Guessing Game!`;
+                    document.getElementById("modalShareImage").src = inviteData.shareImageUrl;
+                    document.getElementById("modalInviteLink").href = inviteData.inviteLink;
+                    document.getElementById("modalInviteLink").textContent = inviteData.inviteLink;
+                    // Re-add WhatsApp share link.
+                    const whatsappLink = inviteData.whatsappLink || `https://api.whatsapp.com/send?text=${encodeURIComponent("Join me on the Travelling Guessing Game! Use my invite link: " + inviteData.inviteLink)}`;
+                    document.getElementById("modalWhatsAppLink").href = whatsappLink;
+                    // Show the modal using Bootstrap's modal plugin (Bootstrap 5 requires data-bs-* or JS API)
+                    var inviteModal = new bootstrap.Modal(document.getElementById("inviteModal"));
+                    inviteModal.show();
+                } else {
+                    console.error("Failed to generate invite");
+                }
+            } catch (error) {
+                console.error("Error generating invite:", error);
+            }
         });
-        if (res.ok) {
-          const profile = await res.json();
-          // Save the registered username in localStorage.
-          localStorage.setItem("profileUsername", profile.username);
-          profileUsername = profile.username;
-          updateChallengeDisplay();
-        } else {
-          console.error("Registration failed");
-        }
-      } catch (error) {
-        console.error("Error during registration:", error);
-      }
-    });
 
-    // Handle share button click: generate invite and show modal.
-    document.getElementById("shareInviteBtn").addEventListener("click", async () => {
-      try {
-        const inviteRes = await fetch(`${API_BASE}/profiles/${profileUsername}/invite`, { method: "POST" });
-        if (inviteRes.ok) {
-          const inviteData = await inviteRes.json();
-          // Update modal content.
-          document.getElementById("modalInviterInfo").innerHTML = `<strong>${inviteData.inviter.username}</strong> invites you to join the Travelling Guessing Game!`;
-          document.getElementById("modalShareImage").src = inviteData.shareImageUrl;
-          document.getElementById("modalInviteLink").href = inviteData.inviteLink;
-          document.getElementById("modalInviteLink").textContent = inviteData.inviteLink;
-          // Re-add WhatsApp share link.
-          const whatsappLink = inviteData.whatsappLink || `https://api.whatsapp.com/send?text=${encodeURIComponent("Join me on the Travelling Guessing Game! Use my invite link: " + inviteData.inviteLink)}`;
-          document.getElementById("modalWhatsAppLink").href = whatsappLink;
-          // Show the modal using Bootstrap's modal plugin (Bootstrap 5 requires data-bs-* or JS API)
-          var inviteModal = new bootstrap.Modal(document.getElementById("inviteModal"));
-          inviteModal.show();
-        } else {
-          console.error("Failed to generate invite");
-        }
-      } catch (error) {
-        console.error("Error generating invite:", error);
-      }
-    });
+        // Reset Guest: remove guestUserId and profileUsername from localStorage and reload.
+        document.getElementById("resetGuestBtn").addEventListener("click", () => {
+            localStorage.removeItem("guestUserId");
+            localStorage.removeItem("profileUsername");
+            guestUserId = null;
+            profileUsername = null;
+            location.reload();
+        });
 
-    // Reset Guest: remove guestUserId and profileUsername from localStorage and reload.
-    document.getElementById("resetGuestBtn").addEventListener("click", () => {
-      localStorage.removeItem("guestUserId");
-      localStorage.removeItem("profileUsername");
-      guestUserId = null;
-      profileUsername = null;
-      location.reload();
-    });
+        // Event listener for the "New Round" button.
+        document.getElementById("newRoundBtn").addEventListener("click", startNewRound);
 
-    // Event listener for the "New Round" button.
-    document.getElementById("newRoundBtn").addEventListener("click", startNewRound);
+        // Initialize guest user on page load.
+        window.onload = ensureGuestUser;
+    </script>
 
-    // Initialize guest user on page load.
-    window.onload = ensureGuestUser;
-  </script>
-  
-  <!-- jQuery and Bootstrap JS (and dependencies) -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- jQuery and Bootstrap JS (and dependencies) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 </body>
+
 </html>
