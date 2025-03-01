@@ -3,24 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Travelling Guessing Game</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-  <style>
-    body { padding-top: 2rem; }
-    .invite-container { max-width: 600px; margin: auto; }
-    .hidden { display: none; }
-  </style>
+  <title>The Globetrotter Challenge – The Ultimate Travel Guessing Game!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-  <div class="container mt-5">
-    <h1 class="mb-4">Travelling Guessing Game</h1>
+    <nav class="navbar navbar-expand-lg border border-dark p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand logo" href="./index.html">
+                <i class="bi bi-backpack"></i> Globetrotter
+            </a>
+        </div>
+    <!-- Challenge / Share Section -->
+    <div id="challengeSection" class="d-flex flex-row align-items-center gap-3">
+        <!-- Registration Form: Visible only if guest is NOT registered -->
+        <div id="registrationDiv" class="d-flex flex-row align-items-center">
+          <form id="registerForm" class="d-flex flex-row align-items-center gap-3">
+            <div class="form-group input-group">
+              <span class="input-group-text" id="basic-addon1">@</span>
+              <input type="text" class="form-control" id="usernameInput" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" required/>
+            </div>
+            <button type="submit" class="btn btn-success">Register</button>
+          </form>
+        </div>
+        <!-- Share Section: Visible if user is registered -->
+        <div id="shareDiv" class="hidden">
+          <button id="shareInviteBtn" class="btn btn-info">Invite</button>
+        </div>
+        <!-- Reset Guest Button: always available -->
+        <button id="resetGuestBtn" class="btn btn-danger">Reset</button>
+      </div>
+  </nav>
+
+  <main class="container">
+    <h1 class="mb-4">The Globetrotter Challenge</h1>
+    <p class="lead">
+        The Ultimate Travel Guessing Game!
+    </p>
+
     
     <!-- Score Display -->
     <div id="scoreDisplay" class="mb-3"></div>
     
     <!-- New Round Button -->
-    <button id="newRoundBtn" class="btn btn-primary mb-3">New Round</button>
+    <button id="newRoundBtn" class="btn btn-primary mb-3">Start Round</button>
     
     <!-- Round Content -->
     <div id="roundContainer" class="mb-3"></div>
@@ -30,28 +57,12 @@
     
     <hr>
     
-    <!-- Challenge / Share Section -->
-    <div id="challengeSection">
-      <!-- Registration Form: Visible only if guest is NOT registered -->
-      <div id="registrationDiv">
-        <h2>Challenge a Friend</h2>
-        <form id="registerForm" class="mb-3">
-          <div class="form-group">
-            <label for="usernameInput">Enter a unique username:</label>
-            <input type="text" class="form-control" id="usernameInput" required />
-          </div>
-          <button type="submit" class="btn btn-success">Register & Challenge</button>
-        </form>
-      </div>
-      <!-- Share Section: Visible if user is registered -->
-      <div id="shareDiv" class="hidden">
-        <h2>Your Invite</h2>
-        <button id="shareInviteBtn" class="btn btn-info">Share Your Invite</button>
-      </div>
-      <!-- Reset Guest Button: always available -->
-      <button id="resetGuestBtn" class="btn btn-danger mt-3">Reset Guest</button>
-    </div>
-  </div>
+    
+</main>
+
+<footer class="border-dark fixed-bottom border border-dark">
+    <p class="text-center">Made with <i class="bi bi-balloon-heart"></i></p>
+</footer>
   
   <!-- Invite Modal -->
   <div class="modal fade" id="inviteModal" tabindex="-1" role="dialog" aria-labelledby="inviteModalLabel" aria-hidden="true">
@@ -274,6 +285,6 @@
   
   <!-- jQuery and Bootstrap JS (and dependencies) -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
