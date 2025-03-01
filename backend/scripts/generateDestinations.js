@@ -1,8 +1,7 @@
 // seed.js
-import OpenAI from "openai";
-import { PrismaClient } from "@prisma/client";
-import dotenv from "dotenv";
-dotenv.config();
+const { OpenAI } = require("openai");
+const { PrismaClient } = require("@prisma/client");
+
 
 const prisma = new PrismaClient();
 
