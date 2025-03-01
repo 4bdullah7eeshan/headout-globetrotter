@@ -21,8 +21,10 @@ datasource db {
 model User {
   // This is a visitor. Username not required just score. We are storing in db...without registring the user by username
   id Int @id @default(autoincrement())
-//  username String @unique // Usernames are unique 
-  score Float // "score = correct / wrong". Convert to % when displaying in frontend 
+//  username String @unique // Usernames are unique
+
+  numberOfCorrectAnswers Int
+  numberOfWrongAnswers Int
   profile Profile?
   rounds Round[]
 }
