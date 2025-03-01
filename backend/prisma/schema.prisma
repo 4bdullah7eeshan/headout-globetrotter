@@ -13,46 +13,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
+// Need to think more about User and Profile models and improve them.
+// A User is initially just a "Visitor" - not registered in db but can play and the score is tracked...how? frontend? localStorage?
+// When clicks share - s/he is registered, score is stored in db associated with the user
+// Transfer score before registration -> post registration
+// Refresh??
 model User {
+  // This is a visitor. Username not required just score. We are storing in db...without registring the user by username
   id Int @id @default(autoincrement())
-  username String @unique // Usernames are unique
+//  username String @unique // Usernames are unique 
+  score Float // "score = correct / wrong". Convert to % when displaying in frontend 
   profile Profile?
+  rounds Round[]
 }
 
 model Profile {
   id Int @id @default(autoincrement())
+
+// is the following relation suff to get score as well?
   user User @relation(fields: [userId], references: [id])
   userId Int @unique
-  score Float // "score = correct / wrong". Convert to % when displaying in frontend 
+
+  username String @unique // Usernames are unique
+  //score Float // "score = correct / wrong". Convert to % when displaying in frontend 
+
+  //rounds Round[]
+
+  // Sharing Link?? - expiry duration? 
 }
 
 // model Game {
 //   // Implement later
+// One game will have n number of Rounds. Overall scores are calculated based on...
+// Restart game will allow users to start from scratch not tying them up with prev performance
+// Highest scores, lowest scores, etc. can be tracked
+// At the moment, there is only ONE game with n number of rounds (n - depends on how many times a user wants to play)
 
 // }
 
 model Round {
-  clue Clue @relation(fields: [clueId], references: [id])
-  clueId Int @unique
+  id Int @id @default(autoincrement())
 
+  clueId Int @unique
+  clue Clue @relation(fields: [clueId], references: [id])
+
+  optionsId Int @unique
+  options Options @relation(fields: [optionsId], references: [id])
+  
+  
+  correctAnswerId Int @unique
+  correctAnswer City @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
+
+  userAnswerId Int @unique
+  userAnswer City @relation("UserAnswer", fields: [userAnswerId], references: [id])
+
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+
+}
+
+model Options {
+  id Int @id @default(autoincrement())
+  cities City[]
+
+  round Round?
 }
 
 model Country {
   id Int @id @default(autoincrement())
   name String @unique
 
-
+  cities City[]
 }
 
 model City {
   id Int @id @default(autoincrement())
   name String @unique
+
+  countryId Int @unique
+  country Country @relation(fields: [countryId], references: [id])
+
+  clues Clue[]
+  funFacts FunFact[]
+  trivia Trivia[]
+
+  correctAnswer Round? @relation("CorrectAnswer")
+  userAnswer Round? @relation("UserAnswer")
+
+  optionsId Int @unique
+  options Options @relation(fields: [optionsId], references: [id])
 }
+
+// merge clues, funFacts, trivia as one entity for example, description, with separate tags/fields?
 
 model Clue {
   id Int @id @default(autoincrement())
   text String
+
+  cityId Int @unique
+  city City @relation(fields: [cityId], references: [id])
+
   round Round?
 
 }
@@ -60,11 +120,18 @@ model Clue {
 model FunFact {
   id Int @id @default(autoincrement())
   text String
+
+  
+  cityId Int @unique
+  city City @relation(fields: [cityId], references: [id])
 }
 
 model Trivia {
   id Int @id @default(autoincrement())
   text String
+
+  cityId Int @unique
+  city City @relation(fields: [cityId], references: [id])
 
 
 }
