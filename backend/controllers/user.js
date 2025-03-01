@@ -2,6 +2,21 @@ const asyncHandler = require("express-async-handler");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+
+/**
+ * POST /api/users/create-guest
+ * Creates a guest user with default values.
+ */
+const createGuestUser = asyncHandler(async (req, res) => {
+    const user = await prisma.user.create({
+      data: {
+        numberOfCorrectAnswers: 0,
+        numberOfWrongAnswers: 0,
+      }
+    });
+    res.status(201).json({ userId: user.id });
+});
+
 /**
  * GET /api/users/:userId/score
  *
@@ -34,5 +49,6 @@ const getUserScore = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  createGuestUser,
   getUserScore
 };
