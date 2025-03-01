@@ -18,8 +18,7 @@
     <div id="inviteImage" class="mb-3">
       <img id="shareImage" src="" alt="Invitation Image" class="img-fluid">
     </div>
-    <a id="whatsappShare" class="btn btn-success mb-3" target="_blank">Share on WhatsApp</a>
-    <br>
+    <div id="scoreDetails" class="mb-3"></div>
     <button id="playNowBtn" class="btn btn-primary">Play Now</button>
   </div>
 
@@ -29,28 +28,39 @@
     const inviteCode = urlParams.get('inviteCode');
     const inviter = urlParams.get('inviter');
     const shareImageUrl = urlParams.get('shareImageUrl');
+    // Expect score parameters: correct and wrong.
+    const correct = urlParams.get('correct');
+    const wrong = urlParams.get('wrong');
 
     // Display inviter details.
     const inviterDetailsDiv = document.getElementById('inviterDetails');
-    inviterDetailsDiv.innerHTML = `<p><strong>Inviter:</strong> ${inviter}</p>
-                                   <p><strong>Invite Code:</strong> ${inviteCode}</p>`;
+    inviterDetailsDiv.innerHTML = `
+      <p><strong>Inviter:</strong> ${inviter}</p>
+      <p><strong>Invite Code:</strong> ${inviteCode}</p>
+    `;
 
-    // Set the share image if provided, otherwise use a fallback.
+    // Set the invitation image.
     if (shareImageUrl) {
       document.getElementById('shareImage').src = shareImageUrl;
     } else {
-      document.getElementById('shareImage').src = 'default-invite.jpg'; // Fallback image
+      document.getElementById('shareImage').src = 'default-invite.jpg'; // Fallback image.
     }
 
-    // Construct WhatsApp share link using the full current URL.
-    const currentUrl = window.location.href;
-    const inviteMessage = `Join me on the Travelling Guessing Game! Use my invite link: ${currentUrl}`;
-    const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
-    document.getElementById('whatsappShare').href = whatsappLink;
+    // Display inviter's score if provided.
+    const scoreDetailsDiv = document.getElementById('scoreDetails');
+    if (correct !== null && wrong !== null) {
+      const total = Number(correct) + Number(wrong);
+      const percentage = total > 0 ? ((Number(correct) / total) * 100).toFixed(2) : "0.00";
+      scoreDetailsDiv.innerHTML = `
+        <p><strong>Score:</strong> ${correct} correct, ${wrong} wrong (${percentage}%)</p>
+      `;
+    } else {
+      scoreDetailsDiv.innerHTML = `<p><strong>Score:</strong> Not available</p>`;
+    }
 
     // Redirect to the game page when "Play Now" is clicked.
     document.getElementById('playNowBtn').addEventListener('click', () => {
-      window.location.href = "index.html"; // Adjust to your main game page
+      window.location.href = "index.html"; // Adjust to your main game page.
     });
   </script>
 
