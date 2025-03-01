@@ -4,6 +4,13 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+model Session {
+  id          String   @id
+  sid         String   @unique
+  data        String
+  expiresAt   DateTime
+}
+
 generator client {
   provider = "prisma-client-js"
 }
