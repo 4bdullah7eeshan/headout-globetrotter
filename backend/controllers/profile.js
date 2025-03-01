@@ -3,7 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "file://wsl.localhost/Ubuntu/home/az/git/headout-globetrotter/frontend/";
+const FRONTEND_URL = "https://4bdullah7eeshan.github.io/headout-globetrotter";
 const PIXABAY_API_KEY = process.env.PIXABAY_API_KEY;
 
 
