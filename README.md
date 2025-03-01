@@ -8,6 +8,8 @@
 
 An interactive web based game, where users are presented with cryptic clue(s) of a destination and they have to guess it.
 
+[Seet it Live!](https://4bdullah7eeshan.github.io/headout-globetrotter)
+
 ### Screenshots
 
 <img src="./utils/hg-landing-page.png" alt="Landing Page" width="400">
@@ -32,15 +34,7 @@ An interactive web based game, where users are presented with cryptic clue(s) of
 
 <img src="./utils/hg-invite-open.png" alt="Landing Page" width="400">
 
-
-
-
-
-
-
-
-
-
+---
 
 ### Features Overview
 
@@ -113,6 +107,13 @@ I went with a light weight frontend tech stack relying on vanilla HTML, CSS, and
 - [Pixabay API](https://pixabay.com/api/docs/): To generate images
 - [Open AI API](https://platform.openai.com/): Prompting info for dataset generation
 - [WhatsApp API](https://api.whatsapp.com/): To share invite link through WhatsApp
+
+### Deployment
+
+- [Render](https://render.com/): Backend deployment
+- [GitHub Pages](https://pages.github.com/): Frontend deployment
+- [Neon](https://neon.tech/): Database
+
 
 ## API
 
