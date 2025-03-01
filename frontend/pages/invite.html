@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>You've Been Invited!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS (Optional) -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body { padding-top: 2rem; }
+    .invite-container { max-width: 600px; margin: auto; }
+  </style>
+</head>
+<body>
+  <div class="container invite-container text-center">
+    <h1 class="mb-4">You've Been Invited!</h1>
+    <div id="inviterDetails" class="mb-3"></div>
+    <div id="inviteImage" class="mb-3">
+      <img id="shareImage" src="" alt="Invitation Image" class="img-fluid">
+    </div>
+    <a id="whatsappShare" class="btn btn-success mb-3" target="_blank">Share on WhatsApp</a>
+    <br>
+    <button id="playNowBtn" class="btn btn-primary">Play Now</button>
+  </div>
+
+  <script>
+    // Parse query parameters from the URL.
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteCode = urlParams.get('inviteCode');
+    const inviter = urlParams.get('inviter');
+    const shareImageUrl = urlParams.get('shareImageUrl');
+
+    // Display inviter details.
+    const inviterDetailsDiv = document.getElementById('inviterDetails');
+    inviterDetailsDiv.innerHTML = `<p><strong>Inviter:</strong> ${inviter}</p>
+                                   <p><strong>Invite Code:</strong> ${inviteCode}</p>`;
+
+    // Set the share image if provided, otherwise use a fallback.
+    if (shareImageUrl) {
+      document.getElementById('shareImage').src = shareImageUrl;
+    } else {
+      document.getElementById('shareImage').src = 'default-invite.jpg'; // Fallback image
+    }
+
+    // Construct WhatsApp share link using the full current URL.
+    const currentUrl = window.location.href;
+    const inviteMessage = `Join me on the Travelling Guessing Game! Use my invite link: ${currentUrl}`;
+    const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
+    document.getElementById('whatsappShare').href = whatsappLink;
+
+    // Redirect to the game page when "Play Now" is clicked.
+    document.getElementById('playNowBtn').addEventListener('click', () => {
+      window.location.href = "index.html"; // Adjust to your main game page
+    });
+  </script>
+
+  <!-- Optional: Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
