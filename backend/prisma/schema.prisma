@@ -23,20 +23,19 @@ model User {
   id Int @id @default(autoincrement())
 
   numberOfCorrectAnswers Int @default(0)
-  numberOfWrongAnswers Int @default(0)
+  numberOfWrongAnswers   Int @default(0)
 
   profile Profile?
-  rounds Round[]
+  rounds  Round[]
 }
 
 model Profile {
   id Int @id @default(autoincrement())
 
-  username String @unique // Usernames are unique
+  username String @unique
 
-  // is the following relation suff to get score as well?
-  user User @relation(fields: [userId], references: [id])
-  userId Int @unique
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
 
   // Sharing Link?? - expiry duration? 
 }
@@ -53,104 +52,52 @@ model Profile {
 model Round {
   id Int @id @default(autoincrement())
 
-  // clueId Int @unique
-  // clue Clue @relation(fields: [clueId], references: [id])
-  clue CityDescription[]
+  clue CityDescription[] @relation("RoundClues")
 
-  optionsId Int
-  options Options[]
-  
-  
+  options City[] @relation("RoundOptions")
+
   correctAnswerId Int
-  correctAnswer City @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
-  
-  userAnswerId Int
-  userAnswer City @relation("UserAnswer", fields: [userAnswerId], references: [id])
+  correctAnswer   City @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
+
+  // Optional
+  userAnswerId Int?
+  userAnswer   City? @relation("UserAnswer", fields: [userAnswerId], references: [id])
 
   userId Int
-  user User @relation(fields: [userId], references: [id])
-
-}
-
-model Options {
-  id Int @id @default(autoincrement())
-  cities      City[]
-  // correctCity City        @relation("CorrectAnswer", fields: [correctCityId], references: [id])
-  // correctCityId Int
-  round Round[]
+  user   User @relation(fields: [userId], references: [id])
 }
 
 model Country {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String @unique
 
   cities City[]
 }
 
 model City {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String @unique
 
-  countryId Int @unique
-  country Country @relation(fields: [countryId], references: [id])
+  countryId Int     @unique
+  country   Country @relation(fields: [countryId], references: [id])
 
-  // clues Clue[]
-  // funFacts FunFact[]
-  // trivia Trivia[]
   description CityDescription[]
 
-  correctAnswers  Round[]   @relation("CorrectAnswer")
-  
-  // User answer relations
-  userAnswers     Round[]   @relation("UserAnswer")
-  options Options[] 
+  correctAnswers Round[] @relation("CorrectAnswer")
 
+  userAnswers  Round[] @relation("UserAnswer")
+  optionRounds Round[] @relation("RoundOptions")
 }
 
-// merge clues, funFacts, trivia as one entity for example, description, with separate tags/fields?
-
-// model Clue {
-//   id Int @id @default(autoincrement())
-//   text String
-
-//   cityId Int @unique
-//   city City @relation(fields: [cityId], references: [id])
-
-//   round Round?
-
-// }
-
-// model FunFact {
-//   id Int @id @default(autoincrement())
-//   text String
-
-  
-//   cityId Int @unique
-//   city City @relation(fields: [cityId], references: [id])
-// }
-
-// model Trivia {
-//   id Int @id @default(autoincrement())
-//   text String
-
-//   cityId Int @unique
-//   city City @relation(fields: [cityId], references: [id])
-
-
-// }
-
 model CityDescription {
-  id Int @id @default(autoincrement())
-  type DescriptionType
+  id          Int             @id @default(autoincrement())
+  type        DescriptionType
   description String
 
   cityId Int
-  city City @relation(fields: [cityId], references: [id])
+  city   City @relation(fields: [cityId], references: [id])
 
-  roundId Int
-  round Round @relation(fields: [roundId], references: [id])
-
-  
+  rounds Round[] @relation("RoundClues")
 }
 
 enum DescriptionType {
