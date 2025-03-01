@@ -53,8 +53,9 @@ model Profile {
 model Round {
   id Int @id @default(autoincrement())
 
-  clueId Int @unique
-  clue Clue @relation(fields: [clueId], references: [id])
+  // clueId Int @unique
+  // clue Clue @relation(fields: [clueId], references: [id])
+  clue CityDescription[]
 
   optionsId Int @unique
   options Options @relation(fields: [optionsId], references: [id])
@@ -92,9 +93,10 @@ model City {
   countryId Int @unique
   country Country @relation(fields: [countryId], references: [id])
 
-  clues Clue[]
-  funFacts FunFact[]
-  trivia Trivia[]
+  // clues Clue[]
+  // funFacts FunFact[]
+  // trivia Trivia[]
+  description CityDescription[]
 
   correctAnswer Round? @relation("CorrectAnswer")
   userAnswer Round? @relation("UserAnswer")
@@ -105,32 +107,50 @@ model City {
 
 // merge clues, funFacts, trivia as one entity for example, description, with separate tags/fields?
 
-model Clue {
-  id Int @id @default(autoincrement())
-  text String
+// model Clue {
+//   id Int @id @default(autoincrement())
+//   text String
 
-  cityId Int @unique
-  city City @relation(fields: [cityId], references: [id])
+//   cityId Int @unique
+//   city City @relation(fields: [cityId], references: [id])
 
-  round Round?
+//   round Round?
 
-}
+// }
 
-model FunFact {
-  id Int @id @default(autoincrement())
-  text String
+// model FunFact {
+//   id Int @id @default(autoincrement())
+//   text String
 
   
-  cityId Int @unique
+//   cityId Int @unique
+//   city City @relation(fields: [cityId], references: [id])
+// }
+
+// model Trivia {
+//   id Int @id @default(autoincrement())
+//   text String
+
+//   cityId Int @unique
+//   city City @relation(fields: [cityId], references: [id])
+
+
+// }
+
+model CityDescription {
+  id Int @id @default(autoincrement())
+  type DescriptionType
+  description String
+
+  cityId Int
   city City @relation(fields: [cityId], references: [id])
+
+  roundId Int
+  round Round @relation(fields: [roundId], references: [id])
 }
 
-model Trivia {
-  id Int @id @default(autoincrement())
-  text String
-
-  cityId Int @unique
-  city City @relation(fields: [cityId], references: [id])
-
-
+enum DescriptionType {
+  CLUE
+  FUN_FACT
+  TRIVIA
 }
