@@ -3,6 +3,10 @@ const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
 
+const FRONTEND_URL = process.env.FRONTEND_URL || "file://wsl.localhost/Ubuntu/home/az/git/headout-globetrotter/frontend/";
+const PIXABAY_API_KEY = process.env.PIXABAY_API_KEY;
+
+
 /**
  * POST /api/profiles/register
  *
@@ -67,6 +71,28 @@ const getProfile = asyncHandler(async (req, res) => {
   });
 });
 
+
+/**
+ * Fetches a random travel-related image URL from Pixabay.
+ */
+async function getRandomTravelImage() {
+    const query = "travel destination";
+    const perPage = 50;
+    const url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=${perPage}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.hits && data.hits.length > 0) {
+        const randomIndex = Math.floor(Math.random() * data.hits.length);
+        return data.hits[randomIndex].largeImageURL || data.hits[randomIndex].webformatURL;
+      }
+    } catch (error) {
+      console.error("Error fetching Pixabay image:", error);
+    }
+    return null;
+  }
+  
+
 /**
  * POST /api/profiles/:username/invite
  *
@@ -92,16 +118,21 @@ const generateInvite = asyncHandler(async (req, res) => {
   // Generate a random invite code.
   const inviteCode = crypto.randomBytes(4).toString("hex").toUpperCase();
   
-  // Construct a dynamic share image URL. (You can integrate with a 3rd-party image generator.)
-  const shareImageUrl = `https://yourimagegen.com/api/image?code=${inviteCode}&user=${profile.username}`;
-  
-  // Construct the invite link.
-  const inviteLink = `https://yourapp.com/invite/${inviteCode}?inviter=${profile.username}`;
+  // Get a random travel image URL from Pixabay.
+  const shareImageUrl = await getRandomTravelImage();
+
+  // Construct the invite link for your GitHub Pages hosted frontend.
+  const inviteLink = `${FRONTEND_URL}/invite.html?inviteCode=${inviteCode}&inviter=${encodeURIComponent(profile.username)}`;
+
+  // Construct the WhatsApp share link.
+  const inviteMessage = `Join me on the Travelling Guessing Game! Use my invite link: ${inviteLink}`;
+  const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
 
   res.json({
     inviteCode,
     inviteLink,
     shareImageUrl,
+    whatsappLink,
     inviter: {
       username: profile.username,
       score: {
