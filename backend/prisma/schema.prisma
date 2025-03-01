@@ -21,10 +21,10 @@ datasource db {
 model User {
   // This is a visitor. Username not required just score. We are storing in db...without registring the user by username
   id Int @id @default(autoincrement())
-//  username String @unique // Usernames are unique
 
   numberOfCorrectAnswers Int @default(0)
   numberOfWrongAnswers Int @default(0)
+  
   profile Profile?
   rounds Round[]
 }
