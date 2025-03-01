@@ -1,4 +1,4 @@
-// seed.js
+// prisma/seed.js
 const { OpenAI } = require("openai");
 const { PrismaClient } = require("@prisma/client");
 
@@ -11,30 +11,38 @@ const openai = new OpenAI({
 
 // Define the prompt for generating 100 destination objects
 const prompt = `
-Provide a JSON array of 100 destination objects. Each object should have the following keys:
-- "city": a famous city name (string).
-- "country": the country name (string).
+Provide exactly a JSON array of 100 destination objects. Each object should have the following keys:
+- "city": a famous city name (string or an object with a "name" key).
+- "country": the country name (string or an object with a "name" key).
 - "clues": an array of 2 strings, each being a clue about the destination.
 - "fun_fact": an array of 2 strings, each being a fun fact about the destination.
 - "trivia": an array of 2 strings, each being a trivia statement about the destination.
-Ensure the JSON is valid and includes exactly 100 objects.
+Output only valid JSON with no additional text.
 `;
 
 /**
- * Calls the OpenAI API to generate destination data.
+ * Calls the OpenAI API to generate destination data and extracts valid JSON.
  */
 async function generateDestinations() {
   console.log("Requesting destination data from OpenAI...");
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini", // adjust model as needed (e.g. "gpt-4" or "gpt-3.5-turbo")
+    model: "gpt-4o-mini", // adjust model as needed (or use "gpt-4" / "gpt-3.5-turbo")
     store: true,
-    messages: [
-      { role: "user", content: prompt }
-    ]
+    messages: [{ role: "user", content: prompt }],
   });
-  
-  const resultText = completion.choices[0].message.content;
-  
+
+  let resultText = completion.choices[0].message.content;
+
+  // Extract the JSON array from the response if extra text is present.
+  const startIndex = resultText.indexOf('[');
+  const endIndex = resultText.lastIndexOf(']');
+  if (startIndex !== -1 && endIndex !== -1) {
+    resultText = resultText.substring(startIndex, endIndex + 1);
+  } else {
+    throw new Error("Could not find JSON array in the response");
+  }
+  resultText = resultText.replace(/,\s*([\]}])/g, '$1');
+
   try {
     const destinations = JSON.parse(resultText);
     console.log("Successfully generated destination data.");
@@ -47,74 +55,79 @@ async function generateDestinations() {
 
 /**
  * Seeds the database with destination data.
+ * Uses upsert for country and city creation and batches creation of city descriptions.
  */
 async function seedDatabase() {
   const destinations = await generateDestinations();
 
   for (const dest of destinations) {
-    // 1. Create or connect the Country
-    let country = await prisma.country.findUnique({
-      where: { name: dest.country },
-    });
-    if (!country) {
-      country = await prisma.country.create({
-        data: { name: dest.country },
-      });
-      console.log(`Created country: ${dest.country}`);
-    }
+    // Ensure we extract the proper string values.
+    const countryName =
+      typeof dest.country === "object" ? dest.country.name : dest.country;
+    const cityName =
+      typeof dest.city === "object" ? dest.city.name : dest.city;
 
-    // 2. Create or connect the City
-    let city = await prisma.city.findUnique({
-      where: { name: dest.city },
+    // Upsert the Country record.
+    const country = await prisma.country.upsert({
+      where: { name: countryName },
+      update: {},
+      create: { name: countryName },
     });
-    if (!city) {
-      city = await prisma.city.create({
-        data: {
-          name: dest.city,
-          country: { connect: { id: country.id } },
-        },
-      });
-      console.log(`Created city: ${dest.city}`);
-    }
+    console.log(`Upserted country: ${countryName}`);
 
-    // 3. Seed CityDescription for clues
-    for (const clue of dest.clues) {
-      await prisma.cityDescription.create({
+    // Upsert the City record.
+    const city = await prisma.city.upsert({
+      where: { name: cityName },
+      update: {},
+      create: {
+        name: cityName,
+        country: { connect: { id: country.id } },
+      },
+    });
+    console.log(`Upserted city: ${cityName}`);
+
+    // Batch create city descriptions concurrently.
+    const cluePromises = dest.clues.map((clue) =>
+      prisma.cityDescription.create({
         data: {
           type: "CLUE",
           description: clue,
           city: { connect: { id: city.id } },
         },
-      });
-    }
+      })
+    );
 
-    // 4. Seed CityDescription for fun facts
-    for (const fact of dest.fun_fact) {
-      await prisma.cityDescription.create({
+    const funFactPromises = dest.fun_fact.map((fact) =>
+      prisma.cityDescription.create({
         data: {
           type: "FUN_FACT",
           description: fact,
           city: { connect: { id: city.id } },
         },
-      });
-    }
+      })
+    );
 
-    // 5. Seed CityDescription for trivia
-    for (const trivia of dest.trivia) {
-      await prisma.cityDescription.create({
+    const triviaPromises = dest.trivia.map((trivia) =>
+      prisma.cityDescription.create({
         data: {
           type: "TRIVIA",
           description: trivia,
           city: { connect: { id: city.id } },
         },
-      });
-    }
+      })
+    );
 
-    console.log(`Seeded destination: ${dest.city}, ${dest.country}`);
+    await Promise.all([
+      ...cluePromises,
+      ...funFactPromises,
+      ...triviaPromises,
+    ]);
+
+    console.log(`Seeded destination: ${cityName}, ${countryName}`);
   }
 }
 
-// Run the seed script
+// Run the seed script.
 seedDatabase()
   .catch((error) => {
     console.error("Seeding error:", error);
