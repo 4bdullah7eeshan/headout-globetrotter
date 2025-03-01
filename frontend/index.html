@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Travelling Guessing Game</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="mb-4">Travelling Guessing Game</h1>
+    
+    <!-- Score Display -->
+    <div id="scoreDisplay" class="mb-3"></div>
+    
+    <!-- New Round Button -->
+    <button id="newRoundBtn" class="btn btn-primary mb-3">New Round</button>
+    
+    <!-- Round Content -->
+    <div id="roundContainer" class="mb-3"></div>
+    
+    <!-- Feedback -->
+    <div id="feedback" class="mb-3"></div>
+    
+    <hr>
+    
+    <!-- Challenge a Friend Section -->
+    <div id="challengeSection">
+      <h2>Challenge a Friend</h2>
+      <form id="registerForm" class="mb-3">
+        <div class="form-group">
+          <label for="usernameInput">Enter a unique username:</label>
+          <input type="text" class="form-control" id="usernameInput" required />
+        </div>
+        <button type="submit" class="btn btn-success">Register & Challenge</button>
+      </form>
+      <div id="inviteInfo"></div>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    const API_BASE = "http://localhost:3000/api";
+    let guestUserId = localStorage.getItem("guestUserId");
+
+    // Simulate guest creation (replace with an API call if available)
+    async function createGuestUser() {
+      // For demo purposes, use a timestamp as guest id.
+      // In a real app, call a POST endpoint like /api/users/create-guest.
+      const newGuestId = Date.now();
+      localStorage.setItem("guestUserId", newGuestId);
+      guestUserId = newGuestId;
+      console.log("Created new guest user:", guestUserId);
+      return guestUserId;
+    }
+
+    // Ensure a guest user exists on page load
+    async function ensureGuestUser() {
+      if (!guestUserId) {
+        await createGuestUser();
+      }
+      updateScoreDisplay();
+    }
+
+    // Fetch and update score display
+    async function updateScoreDisplay() {
+      try {
+        const res = await fetch(`${API_BASE}/users/${guestUserId}/score`);
+        if (res.ok) {
+          const scoreData = await res.json();
+          document.getElementById("scoreDisplay").innerHTML = `
+            <h4>Score:</h4>
+            <p>${scoreData.numberOfCorrectAnswers} correct, ${scoreData.numberOfWrongAnswers} wrong ( ${scoreData.percentage}% )</p>
+          `;
+        }
+      } catch (error) {
+        console.error("Error fetching score:", error);
+      }
+    }
+
+    // Start a new round by fetching round data from the backend
+    async function startNewRound() {
+      try {
+        const res = await fetch(`${API_BASE}/rounds/new?userId=${guestUserId}`);
+        if (res.ok) {
+          const roundData = await res.json();
+          displayRound(roundData);
+        } else {
+          console.error("Error fetching new round");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    // Display round clues and options
+    function displayRound(roundData) {
+      const container = document.getElementById("roundContainer");
+      container.innerHTML = "";
+      const roundId = roundData.roundId;
+      const clues = roundData.clues;
+      const options = roundData.options;
+
+      // Display clues
+      const cluesDiv = document.createElement("div");
+      cluesDiv.innerHTML = "<h3>Clues:</h3>";
+      clues.forEach(clue => {
+        const p = document.createElement("p");
+        p.textContent = clue.description;
+        cluesDiv.appendChild(p);
+      });
+      container.appendChild(cluesDiv);
+
+      // Display options as buttons
+      const optionsDiv = document.createElement("div");
+      optionsDiv.innerHTML = "<h3>Choose your destination:</h3>";
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option.name;
+        btn.className = "btn btn-outline-primary m-1";
+        btn.onclick = () => submitAnswer(roundId, option.id);
+        optionsDiv.appendChild(btn);
+      });
+      container.appendChild(optionsDiv);
+    }
+
+    // Submit an answer and display feedback
+    async function submitAnswer(roundId, userAnswerId) {
+      try {
+        const res = await fetch(`${API_BASE}/rounds/${roundId}/answer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userAnswerId })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("feedback").innerHTML = `<h4>${data.feedback}</h4>`;
+          updateScoreDisplay();
+        } else {
+          console.error("Error submitting answer");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    // Registration: Handle the challenge a friend form submission
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("usernameInput").value.trim();
+      if (!username) return;
+      
+      try {
+        const res = await fetch(`${API_BASE}/profiles/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, guestUserId })
+        });
+        if (res.ok) {
+          const profile = await res.json();
+          // Generate an invite after successful registration
+          const inviteRes = await fetch(`${API_BASE}/profiles/${username}/invite`, { method: "POST" });
+          if (inviteRes.ok) {
+            const inviteData = await inviteRes.json();
+            document.getElementById("inviteInfo").innerHTML = `
+              <p>Invite Link: <a href="${inviteData.inviteLink}" target="_blank">${inviteData.inviteLink}</a></p>
+              <p>Share Image: <img src="${inviteData.shareImageUrl}" alt="Invite Image" style="max-width:200px;"></p>
+            `;
+          }
+        } else {
+          console.error("Registration failed");
+        }
+      } catch (error) {
+        console.error("Error during registration:", error);
+      }
+    });
+
+    // Event listener for the "New Round" button
+    document.getElementById("newRoundBtn").addEventListener("click", startNewRound);
+
+    // Initialize guest user on page load
+    window.onload = ensureGuestUser;
+  </script>
+  
+  <!-- Bootstrap JS (and dependencies) -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
