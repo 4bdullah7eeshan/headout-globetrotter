@@ -23,8 +23,8 @@ model User {
   id Int @id @default(autoincrement())
 //  username String @unique // Usernames are unique
 
-  numberOfCorrectAnswers Int
-  numberOfWrongAnswers Int
+  numberOfCorrectAnswers Int @default(0)
+  numberOfWrongAnswers Int @default(0)
   profile Profile?
   rounds Round[]
 }
