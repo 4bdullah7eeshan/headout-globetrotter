@@ -16,8 +16,8 @@
             </a>
         </div>
   </nav>
-  <div class="container invite-container text-center">
-    <h1 class="mb-4">You've Been Invited!</h1>
+  <div class="container invite-container text-center mb-3">
+    <h1 class="mb-4">Invitation!</h1>
     <div id="inviterDetails" class="mb-3"></div>
     <div id="inviteImage" class="mb-3">
       <img id="shareImage" src="" alt="Invitation Image" class="img-fluid">
@@ -25,6 +25,10 @@
     <div id="scoreDetails" class="mb-3"></div>
     <button id="playNowBtn" class="btn btn-primary">Play Now</button>
   </div>
+
+  <footer class="border-dark mt-auto border border-dark p-2">
+    <p class="text-center">Made with <i class="bi bi-balloon-heart"></i></p>
+  </footer>
 
   <script>
     // Parse query parameters from the URL.
@@ -39,7 +43,7 @@
     // Display inviter details.
     const inviterDetailsDiv = document.getElementById('inviterDetails');
     inviterDetailsDiv.innerHTML = `
-      <p><strong>Inviter:</strong> ${inviter}</p>
+      <p class="lead">You are invited by ${inviter} to play <strong>Globetrotter!</strong> The Ultimate Travel Guessing Game! </p>
       <p><strong>Invite Code:</strong> ${inviteCode}</p>
     `;
 
@@ -56,10 +60,11 @@
       const total = Number(correct) + Number(wrong);
       const percentage = total > 0 ? ((Number(correct) / total) * 100).toFixed(2) : "0.00";
       scoreDetailsDiv.innerHTML = `
-        <p><strong>Score:</strong> ${correct} correct, ${wrong} wrong (${percentage}%)</p>
+        <p><strong>${inviter}'s Score:</strong> ${correct} correct, ${wrong} wrong (${percentage}%)</p>
+        <p>Can you beat it?!</p>
       `;
     } else {
-      scoreDetailsDiv.innerHTML = `<p><strong>Score:</strong> Not available</p>`;
+      scoreDetailsDiv.innerHTML = `<p><strong>${inviter}'s Score:</strong> Not available at the moment!</p>`;
     }
 
     // Redirect to the game page when "Play Now" is clicked.
