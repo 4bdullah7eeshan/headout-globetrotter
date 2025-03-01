@@ -27,7 +27,7 @@ const newRound = asyncHandler(async (req, res) => {
     skip: randomOffset,
     take: 1,
     include: {
-      descriptions: {
+      description: {
         where: { type: "CLUE" }
       }
     }
@@ -38,7 +38,7 @@ const newRound = asyncHandler(async (req, res) => {
   }
 
   // 2. Select 1–2 random CLUE descriptions.
-  const clues = chosenCity.descriptions; // already filtered by type
+  const clues = chosenCity.description; // already filtered by type
   let selectedClues = [];
   if (clues.length > 0) {
     const numberOfClues = Math.min(clues.length, Math.floor(Math.random() * 2) + 1);
@@ -60,7 +60,7 @@ const newRound = asyncHandler(async (req, res) => {
   // 4. Create a new round record.
   const round = await prisma.round.create({
     data: {
-      clues: {
+      clue: {
         connect: selectedClues.map(clue => ({ id: clue.id }))
       },
       options: {
@@ -74,7 +74,7 @@ const newRound = asyncHandler(async (req, res) => {
       }
     },
     include: {
-      clues: true,
+      clue: true,
       options: true,
       correctAnswer: true,
       user: true
@@ -84,7 +84,7 @@ const newRound = asyncHandler(async (req, res) => {
   // Return the round details (do not reveal the correct answer to the frontend).
   res.json({
     roundId: round.id,
-    clues: selectedClues,
+    clue: selectedClues,
     options: options
   });
 });
@@ -110,7 +110,7 @@ const answerRound = asyncHandler(async (req, res) => {
     where: { id: Number(roundId) },
     include: {
       correctAnswer: true,
-      clues: true,
+      clue: true,
       user: true
     }
   });

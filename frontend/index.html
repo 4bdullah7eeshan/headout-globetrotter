@@ -46,14 +46,23 @@
 
     // Simulate guest creation (replace with an API call if available)
     async function createGuestUser() {
-      // For demo purposes, use a timestamp as guest id.
-      // In a real app, call a POST endpoint like /api/users/create-guest.
-      const newGuestId = Date.now();
-      localStorage.setItem("guestUserId", newGuestId);
-      guestUserId = newGuestId;
+  try {
+    const res = await fetch(`${API_BASE}/users/create-guest`, { method: "POST" });
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("guestUserId", data.userId);
+      guestUserId = data.userId;
       console.log("Created new guest user:", guestUserId);
       return guestUserId;
+    } else {
+      throw new Error("Failed to create guest user");
     }
+  } catch (error) {
+    console.error("Error creating guest user:", error);
+  }
+}
+
+
 
     // Ensure a guest user exists on page load
     async function ensureGuestUser() {
@@ -99,7 +108,7 @@
       const container = document.getElementById("roundContainer");
       container.innerHTML = "";
       const roundId = roundData.roundId;
-      const clues = roundData.clues;
+      const clues = roundData.clue;
       const options = roundData.options;
 
       // Display clues
