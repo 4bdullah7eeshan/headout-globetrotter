@@ -8,6 +8,40 @@
 
 An interactive web based game, where users are presented with cryptic clue(s) of a destination and they have to guess it.
 
+### Screenshots
+
+<img src="./utils/hg-landing-page.png" alt="Landing Page" width="400">
+
+---
+
+<img src="./utils/hg-round.png" alt="Landing Page" width="400">
+
+---
+
+<img src="./utils/hg-wrong-answer.png" alt="Landing Page" width="400">
+
+---
+
+<img src="./utils/hg-correct-answer.png" alt="Landing Page" width="400">
+
+---
+
+<img src="./utils/hg-invite-link.png" alt="Landing Page" width="400">
+
+---
+
+<img src="./utils/hg-invite-open.png" alt="Landing Page" width="400">
+
+
+
+
+
+
+
+
+
+
+
 ### Features Overview
 
 - Play as a guest
