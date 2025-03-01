@@ -9,6 +9,7 @@
   <style>
     body { padding-top: 2rem; }
     .invite-container { max-width: 600px; margin: auto; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -29,16 +30,26 @@
     
     <hr>
     
-    <!-- Challenge a Friend Section -->
+    <!-- Challenge / Share Section -->
     <div id="challengeSection">
-      <h2>Challenge a Friend</h2>
-      <form id="registerForm" class="mb-3">
-        <div class="form-group">
-          <label for="usernameInput">Enter a unique username:</label>
-          <input type="text" class="form-control" id="usernameInput" required />
-        </div>
-        <button type="submit" class="btn btn-success">Register & Challenge</button>
-      </form>
+      <!-- Registration Form: Visible only if guest is NOT registered -->
+      <div id="registrationDiv">
+        <h2>Challenge a Friend</h2>
+        <form id="registerForm" class="mb-3">
+          <div class="form-group">
+            <label for="usernameInput">Enter a unique username:</label>
+            <input type="text" class="form-control" id="usernameInput" required />
+          </div>
+          <button type="submit" class="btn btn-success">Register & Challenge</button>
+        </form>
+      </div>
+      <!-- Share Section: Visible if user is registered -->
+      <div id="shareDiv" class="hidden">
+        <h2>Your Invite</h2>
+        <button id="shareInviteBtn" class="btn btn-info">Share Your Invite</button>
+      </div>
+      <!-- Reset Guest Button: always available -->
+      <button id="resetGuestBtn" class="btn btn-danger mt-3">Reset Guest</button>
     </div>
   </div>
   
@@ -69,8 +80,9 @@
   <script>
     const API_BASE = "http://localhost:3000/api";
     let guestUserId = localStorage.getItem("guestUserId");
+    let profileUsername = localStorage.getItem("profileUsername");
 
-    // Simulate guest creation (replace with an API call if available)
+    // Create a guest user via backend if one doesn't exist.
     async function createGuestUser() {
       try {
         const res = await fetch(`${API_BASE}/users/create-guest`, { method: "POST" });
@@ -88,15 +100,16 @@
       }
     }
 
-    // Ensure a guest user exists on page load
+    // Ensure a guest user exists on page load.
     async function ensureGuestUser() {
       if (!guestUserId) {
         await createGuestUser();
       }
       updateScoreDisplay();
+      updateChallengeDisplay();
     }
 
-    // Fetch and update score display
+    // Fetch and update score display.
     async function updateScoreDisplay() {
       try {
         const res = await fetch(`${API_BASE}/users/${guestUserId}/score`);
@@ -104,7 +117,7 @@
           const scoreData = await res.json();
           document.getElementById("scoreDisplay").innerHTML = `
             <h4>Score:</h4>
-            <p>${scoreData.numberOfCorrectAnswers} correct, ${scoreData.numberOfWrongAnswers} wrong ( ${scoreData.percentage}% )</p>
+            <p>${scoreData.numberOfCorrectAnswers} correct, ${scoreData.numberOfWrongAnswers} wrong (${scoreData.percentage}%)</p>
           `;
         }
       } catch (error) {
@@ -112,7 +125,20 @@
       }
     }
 
-    // Start a new round by fetching round data from the backend
+    // Update the challenge section based on registration status.
+    function updateChallengeDisplay() {
+      if (profileUsername) {
+        // User is registered: show shareDiv and hide registration form.
+        document.getElementById("registrationDiv").classList.add("hidden");
+        document.getElementById("shareDiv").classList.remove("hidden");
+      } else {
+        // User not registered: show registration form.
+        document.getElementById("registrationDiv").classList.remove("hidden");
+        document.getElementById("shareDiv").classList.add("hidden");
+      }
+    }
+
+    // Start a new round.
     async function startNewRound() {
       try {
         const res = await fetch(`${API_BASE}/rounds/new?userId=${guestUserId}`);
@@ -127,7 +153,7 @@
       }
     }
 
-    // Display round clues and options
+    // Display round clues and options.
     function displayRound(roundData) {
       const container = document.getElementById("roundContainer");
       container.innerHTML = "";
@@ -135,7 +161,7 @@
       const clues = roundData.clue;
       const options = roundData.options;
 
-      // Display clues
+      // Display clues.
       const cluesDiv = document.createElement("div");
       cluesDiv.innerHTML = "<h3>Clues:</h3>";
       clues.forEach(clue => {
@@ -145,7 +171,7 @@
       });
       container.appendChild(cluesDiv);
 
-      // Display options as buttons
+      // Display options as buttons.
       const optionsDiv = document.createElement("div");
       optionsDiv.innerHTML = "<h3>Choose your destination:</h3>";
       options.forEach(option => {
@@ -158,7 +184,7 @@
       container.appendChild(optionsDiv);
     }
 
-    // Submit an answer and display feedback
+    // Submit an answer.
     async function submitAnswer(roundId, userAnswerId) {
       try {
         const res = await fetch(`${API_BASE}/rounds/${roundId}/answer`, {
@@ -178,7 +204,7 @@
       }
     }
 
-    // Registration: Handle the challenge a friend form submission
+    // Registration: Handle the challenge form submission.
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("usernameInput").value.trim();
@@ -192,22 +218,11 @@
         });
         if (res.ok) {
           const profile = await res.json();
-          // Generate an invite after successful registration
-          const inviteRes = await fetch(`${API_BASE}/profiles/${username}/invite`, { method: "POST" });
-          if (inviteRes.ok) {
-            const inviteData = await inviteRes.json();
-            // Update the modal popup content
-            document.getElementById("modalInviterInfo").innerHTML = `<strong>${inviteData.inviter.username}</strong> invites you to join the Travelling Guessing Game!`;
-            document.getElementById("modalShareImage").src = inviteData.shareImageUrl;
-            document.getElementById("modalInviteLink").href = inviteData.inviteLink;
-            document.getElementById("modalInviteLink").textContent = inviteData.inviteLink;
-            // Construct WhatsApp share link if not provided by backend.
-            const whatsappLink = inviteData.whatsappLink || `https://api.whatsapp.com/send?text=${encodeURIComponent("Join me on the Travelling Guessing Game! Use my invite link: " + inviteData.inviteLink)}`;
-            document.getElementById("modalWhatsAppLink").href = whatsappLink;
-            
-            // Show the modal using Bootstrap's modal plugin (jQuery required)
-            $('#inviteModal').modal('show');
-          }
+          // Save the registered username in localStorage.
+          localStorage.setItem("profileUsername", profile.username);
+          profileUsername = profile.username;
+          // Update display: now show share button instead.
+          updateChallengeDisplay();
         } else {
           console.error("Registration failed");
         }
@@ -216,10 +231,44 @@
       }
     });
 
-    // Event listener for the "New Round" button
+    // Handle share button click: generate invite and show modal.
+    document.getElementById("shareInviteBtn").addEventListener("click", async () => {
+      try {
+        const inviteRes = await fetch(`${API_BASE}/profiles/${profileUsername}/invite`, { method: "POST" });
+        if (inviteRes.ok) {
+          const inviteData = await inviteRes.json();
+          // Update modal content.
+          document.getElementById("modalInviterInfo").innerHTML = `<strong>${inviteData.inviter.username}</strong> invites you to join the Travelling Guessing Game!`;
+          document.getElementById("modalShareImage").src = inviteData.shareImageUrl;
+          document.getElementById("modalInviteLink").href = inviteData.inviteLink;
+          document.getElementById("modalInviteLink").textContent = inviteData.inviteLink;
+          // Re-add WhatsApp share link.
+          const whatsappLink = inviteData.whatsappLink || `https://api.whatsapp.com/send?text=${encodeURIComponent("Join me on the Travelling Guessing Game! Use my invite link: " + inviteData.inviteLink)}`;
+          document.getElementById("modalWhatsAppLink").href = whatsappLink;
+          
+          // Show the modal using Bootstrap's modal plugin (jQuery required).
+          $('#inviteModal').modal('show');
+        } else {
+          console.error("Failed to generate invite");
+        }
+      } catch (error) {
+        console.error("Error generating invite:", error);
+      }
+    });
+
+    // Reset Guest: remove guestUserId and profileUsername from localStorage and reload.
+    document.getElementById("resetGuestBtn").addEventListener("click", () => {
+      localStorage.removeItem("guestUserId");
+      localStorage.removeItem("profileUsername");
+      guestUserId = null;
+      profileUsername = null;
+      location.reload();
+    });
+
+    // Event listener for the "New Round" button.
     document.getElementById("newRoundBtn").addEventListener("click", startNewRound);
 
-    // Initialize guest user on page load
+    // Initialize guest user on page load.
     window.onload = ensureGuestUser;
   </script>
   
