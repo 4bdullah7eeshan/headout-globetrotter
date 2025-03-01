@@ -122,7 +122,7 @@ const generateInvite = asyncHandler(async (req, res) => {
   const shareImageUrl = await getRandomTravelImage();
 
   // Construct the invite link for your GitHub Pages hosted frontend.
-  const inviteLink = `${FRONTEND_URL}/invite.html?inviteCode=${inviteCode}&inviter=${encodeURIComponent(profile.username)}`;
+  const inviteLink = `${FRONTEND_URL}/pages/invite.html?inviteCode=${inviteCode}&inviter=${encodeURIComponent(profile.username)}`;
 
   // Construct the WhatsApp share link.
   const inviteMessage = `Join me on the Travelling Guessing Game! Use my invite link: ${inviteLink}`;
