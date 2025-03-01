@@ -66,7 +66,7 @@ model Round {
   userAnswerId Int @unique
   userAnswer City @relation("UserAnswer", fields: [userAnswerId], references: [id])
 
-  userId Int @unique
+  userId Int
   user User @relation(fields: [userId], references: [id])
 
 }
