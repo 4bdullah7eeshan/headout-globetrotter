@@ -57,14 +57,14 @@ model Round {
   // clue Clue @relation(fields: [clueId], references: [id])
   clue CityDescription[]
 
-  optionsId Int @unique
-  options Options @relation(fields: [optionsId], references: [id])
+  optionsId Int
+  options Options[]
   
   
-  correctAnswerId Int @unique
+  correctAnswerId Int
   correctAnswer City @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
-
-  userAnswerId Int @unique
+  
+  userAnswerId Int
   userAnswer City @relation("UserAnswer", fields: [userAnswerId], references: [id])
 
   userId Int
@@ -74,9 +74,10 @@ model Round {
 
 model Options {
   id Int @id @default(autoincrement())
-  cities City[]
-
-  round Round?
+  cities      City[]
+  // correctCity City        @relation("CorrectAnswer", fields: [correctCityId], references: [id])
+  // correctCityId Int
+  round Round[]
 }
 
 model Country {
@@ -98,11 +99,12 @@ model City {
   // trivia Trivia[]
   description CityDescription[]
 
-  correctAnswer Round? @relation("CorrectAnswer")
-  userAnswer Round? @relation("UserAnswer")
+  correctAnswers  Round[]   @relation("CorrectAnswer")
+  
+  // User answer relations
+  userAnswers     Round[]   @relation("UserAnswer")
+  options Options[] 
 
-  optionsId Int @unique
-  options Options @relation(fields: [optionsId], references: [id])
 }
 
 // merge clues, funFacts, trivia as one entity for example, description, with separate tags/fields?
@@ -147,6 +149,8 @@ model CityDescription {
 
   roundId Int
   round Round @relation(fields: [roundId], references: [id])
+
+  
 }
 
 enum DescriptionType {
