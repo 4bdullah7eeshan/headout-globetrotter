@@ -8,7 +8,7 @@
 
 An interactive web based game, where users are presented with cryptic clue(s) of a destination and they have to guess it.
 
-[Seet it Live!](https://4bdullah7eeshan.github.io/headout-globetrotter)
+[See it Live!](https://4bdullah7eeshan.github.io/headout-globetrotter)
 
 ### Screenshots
 
@@ -124,11 +124,13 @@ I went with a light weight frontend tech stack relying on vanilla HTML, CSS, and
 
 I created REST API to establish a scalable and flexible interaction between the frontend and the backend.
 
+**Deployed Base URL**: <https://headout-globetrotter.onrender.com>
+
 The endpoints are grouped into three main sections: Rounds, Users, and Profiles.
 
 ### Rounds
 
-#### `GET /rounds/new`
+#### `GET rounds/new`
 
 ##### Description
 
