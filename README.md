@@ -116,8 +116,7 @@ I went with a light weight frontend tech stack relying on vanilla HTML, CSS, and
 
 ## Architecture Design
 
-
-<img src="./utils/architecture.png" alt="Landing Page">
+<img src="./utils/architecture.png" alt="Landing Page" width="400" height=auto>
 
 ---
 
