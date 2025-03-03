@@ -114,6 +114,12 @@ I went with a light weight frontend tech stack relying on vanilla HTML, CSS, and
 - [GitHub Pages](https://pages.github.com/): Frontend deployment
 - [Neon](https://neon.tech/): Database
 
+## Architecture Design
+
+
+<img src="./utils/architecture.png" alt="Landing Page">
+
+---
 
 ## API
 
