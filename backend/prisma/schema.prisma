@@ -63,6 +63,9 @@ model Round {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+
+  userSubmittedTime DateTime // Users
+  createdAt DateTime @default(now()) 
 }
 
 model Country {

@@ -169,7 +169,22 @@ const answerRound = asyncHandler(async (req, res) => {
   });
 });
 
+const getAllRoundsOfAUser = asyncHandler(async (req, res) => {
+  const userId = req.params.userId;
+
+  const allRounds = await prisma.round.findMany({
+    where: {
+      userId: userId,
+    },
+  });
+
+  res.json(allRounds).status(200);
+
+
+});
+
 module.exports = {
   newRound,
-  answerRound
+  answerRound,
+  getAllRoundsOfAUser,
 };
